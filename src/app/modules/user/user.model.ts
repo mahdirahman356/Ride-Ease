@@ -19,11 +19,14 @@ const userSchema = new Schema<IUser>({
     phone: { type: String },
     picture: { type: String },
     address: { type: String },
-    isDeleted: { type: Boolean, default: false },
+    isApproved: { type: Boolean },
+    isOnline: { type: Boolean },
+    isDeleted: { type: Boolean },
     isActive: { type: String, enum: Object.values(IsActive), default: IsActive.ACTIVE },
     isVerified: { type: Boolean, default: false },
+    vehicleInfo: { type: { model: String, plateNumber: String, } },
     auths: [authProviderSchema]
-}, {
+},{
     timestamps: true,
     versionKey: false
 })

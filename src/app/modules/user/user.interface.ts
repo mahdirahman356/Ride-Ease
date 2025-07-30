@@ -17,6 +17,11 @@ export enum IsActive {
     BLOCKED = "BLOCKED"
 }
 
+export interface IVehicleInfo {
+    model: string;
+    plateNumber: string;
+}
+
 export interface IUser {
     _id?: Types.ObjectId,
     name: string,
@@ -26,8 +31,11 @@ export interface IUser {
     phone?: string,
     picture?: string,
     address?: string,
+    isApproved: boolean,
+    isOnline: boolean,
     isDeleted?: boolean,
     isActive?: string,
     isVerified?: boolean,
+    vehicleInfo?: IVehicleInfo | null;
     auths: IAuthProvider[]
 }

@@ -1,4 +1,5 @@
 import z, { email } from "zod";
+import { Role } from "./user.interface";
 
 export const createUserZodSchema = z.object({
     name: z
@@ -13,6 +14,9 @@ export const createUserZodSchema = z.object({
     password: z
         .string({ message: "Password must be string" })
         .min(8, { message: "Password must be at least 8 characters long." }),
+    role: z
+        .enum(Object.values(Role) as [string])
+        .optional(),
     phone: z
         .string({ message: "Phone Number must be string" })
         .regex(/^(?:\+8801\d{9}|01\d{9})$/, {
@@ -22,5 +26,15 @@ export const createUserZodSchema = z.object({
     address: z
         .string({ message: "Address must be string" })
         .max(200, { message: "Address cannot exceed 200 characters." })
-        .optional()
+        .optional(),
+    isOnline: z
+        .boolean().optional(),
+    isApproved: z
+        .boolean().optional(),
+    vehicleInfo: z
+    .object({
+      model: z.string({ message: "Vehicle model is required" }),
+      plateNumber: z.string({ message: "Plate number is required" }),
+    })
+    .optional()    
 })
