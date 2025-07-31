@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+exports.RideRoute = void 0;
+const express_1 = require("express");
+const ride_controller_1 = require("./ride.controller");
+const checkAuth_1 = require("../../middlewares/checkAuth");
+const user_interface_1 = require("../user/user.interface");
+const validateRequest_1 = require("../../middlewares/validateRequest");
+const ride_validation_1 = require("./ride.validation");
+const router = (0, express_1.Router)();
+router.post("/request", (0, checkAuth_1.checkAuth)(user_interface_1.Role.RIDER), (0, validateRequest_1.validateRequest)(ride_validation_1.createRidesZodSchema), ride_controller_1.RideController.rideRequest);
+router.get("/me", (0, checkAuth_1.checkAuth)(user_interface_1.Role.RIDER), ride_controller_1.RideController.getMyRideRequest);
+router.patch("/:id/status", (0, checkAuth_1.checkAuth)(user_interface_1.Role.RIDER), ride_controller_1.RideController.rideStatusUpdate);
+exports.RideRoute = router;

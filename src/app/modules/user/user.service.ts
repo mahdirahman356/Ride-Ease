@@ -13,9 +13,6 @@ const createUser = async (payload: Partial<IUser>) => {
         throw new AppError(400, "User Already Exist")
     }
 
-    if (role !== "DRIVER" && isOnline !== undefined) {
-        throw new AppError(400, "isOnline is only allowed when role is DRIVER");
-    }
 
     const hashedPassword = await bcryptjs.hash(password as string, Number(envVars.BCRYPT_SALT_ROUND))
     const authProvider: IAuthProvider = { provider: "credentials", providerId: email as string }
