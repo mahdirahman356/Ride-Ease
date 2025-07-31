@@ -1,3 +1,4 @@
+import { Types } from "mongoose";
 import AppError from "../../errorHelpers/AppError";
 import { RideStatus } from "../ride/ride.interface";
 import { Ride } from "../ride/ride.model";
@@ -13,22 +14,6 @@ const approveDriver = async (status: RideStatus, driverId: string, rideId: strin
         throw new AppError(400, `Driver not found`);
     }
 
-    if (driver.isActive === IsActive.BLOCKED || driver.isActive === IsActive.INACTIVE) {
-        throw new AppError(400, `Your account is ${driver.isActive.toLowerCase()}`);
-    }
-
-    if (driver.isDeleted) {
-        throw new AppError(400, "Your account has been deleted");
-    }
-
-    if (!driver.isOnline) {
-        throw new AppError(403, "Driver is currently offline");
-    }
-
-    if (!driver.isApproved) {
-        throw new AppError(403, "Driver is not approved by admin");
-    }
-    
     const cleanedRideId = rideId.trim();
     const ride = await Ride.findById(cleanedRideId);
 
@@ -54,17 +39,73 @@ const approveDriver = async (status: RideStatus, driverId: string, rideId: strin
         throw new AppError(403, "You already have an active ride");
     }
 
-    console.log(ride)
+    const validTransitions: Record<RideStatus, RideStatus[]> = {
+        [RideStatus.REQUESTED]: [RideStatus.ACCEPTED, RideStatus.REJECTED],
+        [RideStatus.ACCEPTED]: [RideStatus.PICKED_UP],
+        [RideStatus.PICKED_UP]: [RideStatus.IN_TRANSIT],
+        [RideStatus.IN_TRANSIT]: [RideStatus.COMPLETED],
+        [RideStatus.COMPLETED]: [],
+        [RideStatus.CANCELLED]: [],
+        [RideStatus.REJECTED]: [],
+    };
 
-    const updateStatus = await Ride.findByIdAndUpdate(
-        ride._id,
-        { status: status, driver: driver._id },
-        { new: true, runValidators: true })
+    if (!validTransitions[ride.status].includes(status)) {
+        throw new AppError(400, `Invalid status transition from ${ride.status} to ${status}`);
 
-    return updateStatus
+    }
+
+    const now = new Date()
+
+    ride.driver = new Types.ObjectId(driverId);
+    ride.status = status
+    switch (status) {
+        case RideStatus.ACCEPTED:
+            ride.statusHistory.acceptedAt = now;
+            break;
+        case RideStatus.PICKED_UP:
+            ride.statusHistory.pickedUpAt = now;
+            break;
+        case RideStatus.IN_TRANSIT:
+            ride.statusHistory.inTransitAt = now;
+            break;
+        case RideStatus.COMPLETED:
+            ride.statusHistory.completedAt = now;
+            break;
+        case RideStatus.REJECTED:
+            ride.statusHistory.rejectedAt = now;
+            break;
+        default:
+            break;
+    }
+
+    await ride.save({ validateBeforeSave: true });
 };
+
+const getMyEarnings = async (userId: string) => {
+    const completedRides = await Ride.find({ driver: userId, status: "COMPLETED" })
+    if (!completedRides || completedRides.length === 0) {
+        return {
+            message: "No completed rides found in your history.",
+        };
+    }
+    return completedRides
+}
+const getDriverAssignedRides = async (userId: string) => {
+
+    const validStatuses: RideStatus[] = [ RideStatus.ACCEPTED, RideStatus.PICKED_UP, RideStatus.IN_TRANSIT];
+    const ride = await Ride.find({ driver: userId, status: { $in: validStatuses } })
+
+    if (!ride || ride.length === 0) {
+        return {
+            message: "No assigned ride found for the driver.",
+        };
+    }
+    return ride
+}
 
 
 export const DriverServices = {
-    approveDriver
+    approveDriver,
+    getMyEarnings,
+    getDriverAssignedRides
 }

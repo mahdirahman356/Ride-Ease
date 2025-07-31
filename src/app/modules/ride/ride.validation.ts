@@ -1,9 +1,13 @@
 import z from "zod";
 import { RideStatus } from "./ride.interface";
 
+export const locationSchema = z.object({
+    lat: z.number(),
+    lng: z.number(),
+    address: z.string().optional(),
+});
 
 export const createRidesZodSchema = z.object({
-    pickupLocation: z.string(),
-    destinationLocation: z.string(),
-    status: z.enum(Object.values(RideStatus) as [string]).optional()
+    pickupLocation: locationSchema,
+    destinationLocation: locationSchema,
 })

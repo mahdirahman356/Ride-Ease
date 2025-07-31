@@ -19,12 +19,12 @@ const rideRequest = catchAsync(async (req: Request, res: Response, next: NextFun
 const getMyRideRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload
     console.log(decodedToken?.userId)
-    const user = await RideServices.getMyRideRequest(decodedToken.userId)
+    const result = await RideServices.getMyRideRequest(decodedToken.userId)
     sendResponse(res, {
         success: true,
         statusCode: 200,
         message: "Rides retrieved successfully",
-        data: user
+        data: result
     })
 
 })
@@ -33,12 +33,12 @@ const rideStatusUpdate = catchAsync(async (req: Request, res: Response, next: Ne
     const decodedToken = req.user as JwtPayload
     const rideId = req.params.id
     const { status } = req.body
-    const user = await RideServices.rideStatusUpdate(status, decodedToken.userId, rideId)
+    await RideServices.rideStatusUpdate(status, decodedToken.userId, rideId)
     sendResponse(res, {
         success: true,
         statusCode: 200,
-        message: "Ride status updated successfully",
-        data: user
+        message: `You have Cancelled the ride`,
+        data: null
     })
 
 })

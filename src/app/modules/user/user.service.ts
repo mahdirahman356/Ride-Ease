@@ -1,6 +1,7 @@
 import { envVars } from "../../config/env";
 import AppError from "../../errorHelpers/AppError";
-import { IAuthProvider, IUser } from "./user.interface";
+import { Ride } from "../ride/ride.model";
+import { IAuthProvider, IsActive, IUser } from "./user.interface";
 import { User } from "./user.model";
 import bcryptjs from "bcryptjs"
 
@@ -30,7 +31,7 @@ const createUser = async (payload: Partial<IUser>) => {
     if (role === "DRIVER") {
         userData.isApproved = false;
         userData.isOnline = isOnline ?? false;
-        userData.vehicleInfo = payload.vehicleInfo ?? null; 
+        userData.vehicleInfo = payload.vehicleInfo ?? null;
     }
 
 
@@ -40,20 +41,71 @@ const createUser = async (payload: Partial<IUser>) => {
 }
 const updateAvailability = async (isOnline: boolean, userId: string) => {
 
-    const updateAvailability = User.findByIdAndUpdate(
-        userId,
-        { isOnline },
-        { new: true, runValidators: true })
+    const user = await User.findById(userId)
 
-    if (!updateAvailability) {
+    if (!user) {
         throw new AppError(404, "User Not Found")
     }
 
-    return updateAvailability
+    user.isOnline = isOnline
+    await user.save()
 
+}
+
+const viewAllTypeOfUsers = async (type: string) => {
+
+    if (!type) {
+        throw new AppError(400, "Query parameter 'type' is required (user | driver | ride)")
+    }
+
+    let data;
+    if (type === "user") {
+        data = await User.find({ role: { $ne: "ADMIN" } }, "-password")
+    }
+    if (type === "driver") {
+        data = await User.find({ role: "DRIVER" }, "-password");
+    }
+    if (type === "ride") {
+        data = await Ride.find()
+            .populate("rider", "name phone")
+            .populate("driver", "name phone")
+    }
+
+    return data
+
+}
+const updateDriverApproval = async (isApproved: boolean, driverId: string) => {
+
+    const driver = await User.findById(driverId)
+
+    if (!driver || driver.role !== "DRIVER") {
+        throw new AppError(404, "Driver not found")
+    }
+
+    driver.isApproved = isApproved;
+    await driver.save();
+
+}
+const setUserActiveStatus = async (isActive: IsActive, userId: string) => {
+
+    if(!Object.values(IsActive).includes(isActive)){
+        throw new AppError(400, `Invalid isActive status. Valid values are: ${Object.values(IsActive).join(", ")}`)
+    }
+
+    const user = await User.findById(userId)
+
+    if (!user) {
+        throw new AppError(404, "User not found")
+    }
+
+    user.isActive = isActive;
+    await user.save();
 }
 
 export const UserServices = {
     createUser,
-    updateAvailability
+    updateAvailability,
+    viewAllTypeOfUsers,
+    updateDriverApproval,
+    setUserActiveStatus
 }

@@ -3,6 +3,8 @@ import { User } from "../user/user.model"
 import { IRide, RideStatus } from "./ride.interface"
 import { Ride } from "./ride.model"
 
+const MAX_CANCELS_PER_DAY = 3
+
 const rideRequest = async (payload: Partial<IRide>, userId: string) => {
 
     const existingActiveRide = await Ride.findOne({
@@ -62,12 +64,30 @@ const rideStatusUpdate = async (status: string, userId: string, rideId: string) 
         throw new AppError(400, `Ride cannot be cancelled because it is already ${ride.status.toLowerCase().replace('_', ' ')}.`);
     }
 
-    const updateStatus = await Ride.findByIdAndUpdate(
-        rideId,
-        { status },
-        { new: true, runValidators: true })
+    const rider = await User.findById(userId)
 
-    return updateStatus
+    if (!rider) {
+        throw new AppError(404, "Rider not found");
+    }
+
+    const now = new Date();
+
+    if (rider.lastCancelAt && now.getTime() - rider.lastCancelAt.getTime() > 24 * 60 * 60 * 1000) {
+        rider.cancelAttempts = 0;
+    }
+
+    if (rider.cancelAttempts >= MAX_CANCELS_PER_DAY) {
+        throw new AppError(403, "You have reached the maximum number of ride cancellations allowed today.");
+    }
+
+
+    ride.status = status;
+    ride.statusHistory.cancelledAt = now
+
+    rider.cancelAttempts = (rider.cancelAttempts || 0) + 1;
+    rider.lastCancelAt = now;
+
+    await Promise.all([ride.save(), rider.save()]);
 
 }
 

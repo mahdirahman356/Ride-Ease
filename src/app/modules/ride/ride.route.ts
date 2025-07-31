@@ -12,7 +12,7 @@ router.post("/request",
     RideController.rideRequest)
 
 router.get("/me",
-    checkAuth(...Object.values(Role)),
+    checkAuth(Role.RIDER),
     RideController.getMyRideRequest)
 
 router.patch("/:id/status",

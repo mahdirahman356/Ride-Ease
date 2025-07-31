@@ -4,7 +4,7 @@ import { verifyToken } from "../utils/jwt";
 import { envVars } from "../config/env";
 import { User } from "../modules/user/user.model";
 import { JwtPayload } from "jsonwebtoken";
-import { IsActive } from "../modules/user/user.interface";
+import { IsActive, Role } from "../modules/user/user.interface";
 
 
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
@@ -29,6 +29,17 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
 
     if (isUserExist.isDeleted) {
         throw new AppError(400, "User is deleted")
+    }
+
+    if (verifiedToken.role === Role.DRIVER) {
+        if (!isUserExist.isOnline) {
+            throw new AppError(403, "Driver is currently offline");
+        }
+
+        if (!isUserExist.isApproved) {
+            throw new AppError(403, "Driver is not approved by admin");
+        }
+
     }
 
     if (!authRoles.includes(verifiedToken.role)) {

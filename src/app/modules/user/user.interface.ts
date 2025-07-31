@@ -31,6 +31,8 @@ export interface IUser {
     phone?: string,
     picture?: string,
     address?: string,
+    cancelAttempts: number,
+    lastCancelAt: Date,
     isApproved: boolean,
     isOnline: boolean,
     isDeleted?: boolean,

@@ -19,6 +19,8 @@ const userSchema = new Schema<IUser>({
     phone: { type: String },
     picture: { type: String },
     address: { type: String },
+    cancelAttempts: { type: Number },
+    lastCancelAt: { type: Date, },
     isApproved: { type: Boolean },
     isOnline: { type: Boolean },
     isDeleted: { type: Boolean },
@@ -26,7 +28,7 @@ const userSchema = new Schema<IUser>({
     isVerified: { type: Boolean, default: false },
     vehicleInfo: { type: { model: String, plateNumber: String, } },
     auths: [authProviderSchema]
-},{
+}, {
     timestamps: true,
     versionKey: false
 })
