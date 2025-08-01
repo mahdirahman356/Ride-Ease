@@ -6,7 +6,7 @@ const driver_controller_1 = require("./driver.controller");
 const checkAuth_1 = require("../../middlewares/checkAuth");
 const user_interface_1 = require("../user/user.interface");
 const router = (0, express_1.Router)();
-router.patch("/assign-ride/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.DRIVER), driver_controller_1.DriverControllers.approveDriver);
+router.patch("/assign-ride/:id", (0, checkAuth_1.checkAuth)(user_interface_1.Role.DRIVER), driver_controller_1.DriverControllers.driverRideAssign);
 router.get("/my-earnings", (0, checkAuth_1.checkAuth)(user_interface_1.Role.DRIVER), driver_controller_1.DriverControllers.getMyEarnings);
 router.get("/assigned-ride", (0, checkAuth_1.checkAuth)(user_interface_1.Role.DRIVER), driver_controller_1.DriverControllers.getDriverAssignedRides);
 exports.DriverRoute = router;

@@ -13,11 +13,11 @@ exports.DriverControllers = void 0;
 const catchAsync_1 = require("../../utils/catchAsync");
 const sendResponse_1 = require("../../utils/sendResponse");
 const driver_service_1 = require("./driver.service");
-const approveDriver = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+const driverRideAssign = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const { status } = req.body;
     const decodedToken = req.user;
     const rideId = req.params.id;
-    yield driver_service_1.DriverServices.approveDriver(status, decodedToken.userId, rideId);
+    yield driver_service_1.DriverServices.driverRideAssign(status, decodedToken.userId, rideId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: 200,
@@ -46,7 +46,7 @@ const getDriverAssignedRides = (0, catchAsync_1.catchAsync)((req, res, next) => 
     });
 }));
 exports.DriverControllers = {
-    approveDriver,
+    driverRideAssign,
     getMyEarnings,
     getDriverAssignedRides
 };

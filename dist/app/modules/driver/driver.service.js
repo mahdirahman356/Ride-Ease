@@ -18,7 +18,7 @@ const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
 const ride_interface_1 = require("../ride/ride.interface");
 const ride_model_1 = require("../ride/ride.model");
 const user_model_1 = require("../user/user.model");
-const approveDriver = (status, driverId, rideId) => __awaiter(void 0, void 0, void 0, function* () {
+const driverRideAssign = (status, driverId, rideId) => __awaiter(void 0, void 0, void 0, function* () {
     const driver = yield user_model_1.User.findById(driverId);
     if (!driver) {
         throw new AppError_1.default(400, `Driver not found`);
@@ -97,7 +97,7 @@ const getDriverAssignedRides = (userId) => __awaiter(void 0, void 0, void 0, fun
     return ride;
 });
 exports.DriverServices = {
-    approveDriver,
+    driverRideAssign,
     getMyEarnings,
     getDriverAssignedRides
 };

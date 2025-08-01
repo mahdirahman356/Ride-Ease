@@ -4,11 +4,11 @@ import { JwtPayload } from "jsonwebtoken"
 import { sendResponse } from "../../utils/sendResponse"
 import { DriverServices } from "./driver.service"
 
-const approveDriver = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const driverRideAssign = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const { status } = req.body
     const decodedToken = req.user as JwtPayload
     const rideId = req.params.id
-    await DriverServices.approveDriver(status, decodedToken.userId, rideId)
+    await DriverServices.driverRideAssign(status, decodedToken.userId, rideId)
     sendResponse(res, {
         success: true,
         statusCode: 200,
@@ -42,7 +42,7 @@ const getDriverAssignedRides = catchAsync(async (req: Request, res: Response, ne
 })
 
 export const DriverControllers = {
-    approveDriver,
+    driverRideAssign,
     getMyEarnings,
     getDriverAssignedRides
 }

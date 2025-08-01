@@ -6,7 +6,7 @@ import { IsActive } from "../user/user.interface";
 import { User } from "../user/user.model";
 
 
-const approveDriver = async (status: RideStatus, driverId: string, rideId: string) => {
+const driverRideAssign = async (status: RideStatus, driverId: string, rideId: string) => {
 
     const driver = await User.findById(driverId);
 
@@ -80,7 +80,6 @@ const approveDriver = async (status: RideStatus, driverId: string, rideId: strin
 
     await ride.save({ validateBeforeSave: true });
 };
-
 const getMyEarnings = async (userId: string) => {
     const completedRides = await Ride.find({ driver: userId, status: "COMPLETED" })
     if (!completedRides || completedRides.length === 0) {
@@ -103,9 +102,8 @@ const getDriverAssignedRides = async (userId: string) => {
     return ride
 }
 
-
 export const DriverServices = {
-    approveDriver,
+    driverRideAssign,
     getMyEarnings,
     getDriverAssignedRides
 }

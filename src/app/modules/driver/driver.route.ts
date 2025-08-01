@@ -7,7 +7,7 @@ const router = Router()
 
 router.patch("/assign-ride/:id",
     checkAuth(Role.DRIVER),
-    DriverControllers.approveDriver)
+    DriverControllers.driverRideAssign)
 
 router.get("/my-earnings",
     checkAuth(Role.DRIVER),
