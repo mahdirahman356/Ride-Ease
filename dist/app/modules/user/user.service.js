@@ -24,8 +24,10 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.UserServices = void 0;
+const constants_1 = require("../../../constants");
 const env_1 = require("../../config/env");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
+const QueryBuilder_1 = require("../../utils/QueryBuilder");
 const ride_model_1 = require("../ride/ride.model");
 const user_interface_1 = require("./user.interface");
 const user_model_1 = require("./user.model");
@@ -56,23 +58,116 @@ const updateAvailability = (isOnline, userId) => __awaiter(void 0, void 0, void 
     user.isOnline = isOnline;
     yield user.save();
 });
-const viewAllTypeOfUsers = (type) => __awaiter(void 0, void 0, void 0, function* () {
-    if (!type) {
-        throw new AppError_1.default(400, "Query parameter 'type' is required (user | driver | ride)");
+const getMe = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(userId).select("-password");
+    return {
+        data: user
+    };
+});
+const viewAllTypeOfUsers = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(user_model_1.User.find({ role: { $ne: "ADMIN" } }, "-password"), query);
+    console.log(query);
+    const user = yield queryBuilder
+        .filter()
+        .search(constants_1.userSearchableFilds)
+        .fields()
+        .build();
+    return user;
+});
+const viewAllrides = (query) => __awaiter(void 0, void 0, void 0, function* () {
+    const rides = ride_model_1.Ride.find()
+        .populate("rider", "name phone role")
+        .populate("driver", "name phone role");
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(rides, query);
+    const user = yield queryBuilder
+        .filter()
+        .build();
+    return user;
+});
+const adminAnalytics = () => __awaiter(void 0, void 0, void 0, function* () {
+    const analyticsData = yield ride_model_1.Ride.aggregate([
+        {
+            $match: {
+                status: 'COMPLETED',
+            },
+        },
+        {
+            $group: {
+                _id: {
+                    $dateToString: { format: "%Y-%m-%d", date: "$statusHistory.completedAt" }
+                },
+                rides: { $sum: 1 },
+                revenue: { $sum: "$fareEstimation" }
+            }
+        },
+        { $sort: { "_id": 1 } },
+        {
+            $project: {
+                _id: 0,
+                date: "$_id",
+                rides: 1,
+                revenue: 1
+            }
+        }
+    ]);
+    const driverActivity = yield ride_model_1.Ride.aggregate([
+        { $match: { status: "COMPLETED" } },
+        {
+            $group: {
+                _id: "$driver",
+                totalRides: { $sum: 1 },
+                totalRevenue: { $sum: "$fareEstimation" },
+            }
+        },
+        {
+            $lookup: {
+                from: "users",
+                localField: "_id",
+                foreignField: "_id",
+                as: "driverInfo"
+            }
+        },
+        {
+            $unwind: "$driverInfo"
+        },
+        {
+            $project: {
+                _id: 0,
+                driverId: "$_id",
+                name: "$driverInfo.name",
+                email: "$driverInfo.email",
+                phone: "$driverInfo.phone",
+                address: "$driverInfo.address",
+                isActive: "$driverInfo.isActive",
+                totalRides: 1,
+                totalRevenue: 1
+            }
+        },
+        { $sort: { totalRides: -1 } }
+    ]);
+    return {
+        analyticsData,
+        driverActivity
+    };
+});
+const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    if (userId !== decodedToken.userId) {
+        throw new AppError_1.default(401, "You are not authorized");
     }
-    let data;
-    if (type === "user") {
-        data = yield user_model_1.User.find({ role: { $ne: "ADMIN" } }, "-password");
+    const ifUserExist = yield user_model_1.User.findById(userId);
+    if (!ifUserExist) {
+        throw new AppError_1.default(404, "User Not Found");
     }
-    if (type === "driver") {
-        data = yield user_model_1.User.find({ role: "DRIVER" }, "-password");
+    if (ifUserExist.isDeleted === true || ifUserExist.isActive === user_interface_1.IsActive.BLOCKED) {
+        throw new AppError_1.default(401, "This user can not be updated");
     }
-    if (type === "ride") {
-        data = yield ride_model_1.Ride.find()
-            .populate("rider", "name phone")
-            .populate("driver", "name phone");
+    if (decodedToken.role === user_interface_1.Role.DRIVER) {
+        if (ifUserExist.isApproved === false) {
+            throw new AppError_1.default(401, "This user can not be updated");
+        }
     }
-    return data;
+    const newUpdatedUser = yield user_model_1.User.findByIdAndUpdate(userId, payload, { new: true, runValidators: true });
+    return newUpdatedUser;
 });
 const updateDriverApproval = (isApproved, driverId) => __awaiter(void 0, void 0, void 0, function* () {
     const driver = yield user_model_1.User.findById(driverId);
@@ -97,6 +192,10 @@ exports.UserServices = {
     createUser,
     updateAvailability,
     viewAllTypeOfUsers,
+    viewAllrides,
+    adminAnalytics,
+    getMe,
+    updateUser,
     updateDriverApproval,
     setUserActiveStatus
 };

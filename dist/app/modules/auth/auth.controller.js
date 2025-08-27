@@ -35,7 +35,20 @@ const logout = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0
         data: null
     });
 }));
+const changePassword = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const newPassword = req.body.newPassword;
+    const oldPassword = req.body.oldPassword;
+    yield auth_service_1.AuthServices.changePassword(oldPassword, newPassword, decodedToken);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: 200,
+        message: "User Changed Successfully",
+        data: null
+    });
+}));
 exports.AuthControllers = {
     credentialsLogin,
-    logout
+    logout,
+    changePassword
 };

@@ -29,6 +29,7 @@ const createTokens_1 = require("../../utils/createTokens");
 const setCookie_1 = require("../../utils/setCookie");
 const user_model_1 = require("../user/user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const env_1 = require("../../config/env");
 const credentialsLogin = (payload, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { email, password } = payload;
     const isUserExist = yield user_model_1.User.findOne({ email });
@@ -47,6 +48,19 @@ const credentialsLogin = (payload, res) => __awaiter(void 0, void 0, void 0, fun
         user: rest
     };
 });
+const changePassword = (oldPassword, newPassword, decodedToken) => __awaiter(void 0, void 0, void 0, function* () {
+    const user = yield user_model_1.User.findById(decodedToken.userId);
+    const isOldPasswordMatch = yield bcryptjs_1.default.compare(oldPassword, user.password);
+    if (!isOldPasswordMatch) {
+        throw new AppError_1.default(401, "Old Password does not match");
+    }
+    if (oldPassword === newPassword) {
+        throw new AppError_1.default(400, "New password must be different from the old password");
+    }
+    user.password = yield bcryptjs_1.default.hash(newPassword, Number(env_1.envVars.BCRYPT_SALT_ROUND));
+    user.save();
+});
 exports.AuthServices = {
-    credentialsLogin
+    credentialsLogin,
+    changePassword
 };

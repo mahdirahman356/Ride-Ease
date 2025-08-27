@@ -25,9 +25,32 @@ const driverRideAssign = (0, catchAsync_1.catchAsync)((req, res, next) => __awai
         data: null
     });
 }));
+const getMyRideHistory = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const query = req.query;
+    console.log(decodedToken === null || decodedToken === void 0 ? void 0 : decodedToken.userId);
+    const result = yield driver_service_1.DriverServices.getMyRideHistory(query, decodedToken.userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Rides retrieved successfully",
+        data: result
+    });
+}));
+const rideRequests = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
+    const decodedToken = req.user;
+    const result = yield driver_service_1.DriverServices.rideRequests(decodedToken.userId);
+    (0, sendResponse_1.sendResponse)(res, {
+        success: true,
+        statusCode: 200,
+        message: "Ride Requests retrieved successfully",
+        data: result
+    });
+}));
 const getMyEarnings = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const decodedToken = req.user;
-    const result = yield driver_service_1.DriverServices.getMyEarnings(decodedToken.userId);
+    const query = req.query;
+    const result = yield driver_service_1.DriverServices.getMyEarnings(decodedToken.userId, query);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: 200,
@@ -47,6 +70,8 @@ const getDriverAssignedRides = (0, catchAsync_1.catchAsync)((req, res, next) => 
 }));
 exports.DriverControllers = {
     driverRideAssign,
+    getMyRideHistory,
     getMyEarnings,
+    rideRequests,
     getDriverAssignedRides
 };

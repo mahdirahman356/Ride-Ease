@@ -25,8 +25,9 @@ const rideRequest = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(v
 }));
 const getMyRideRequest = (0, catchAsync_1.catchAsync)((req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
     const decodedToken = req.user;
+    const query = req.query;
     console.log(decodedToken === null || decodedToken === void 0 ? void 0 : decodedToken.userId);
-    const result = yield ride_service_1.RideServices.getMyRideRequest(decodedToken.userId);
+    const result = yield ride_service_1.RideServices.getMyRideRequest(query, decodedToken.userId);
     (0, sendResponse_1.sendResponse)(res, {
         success: true,
         statusCode: 200,

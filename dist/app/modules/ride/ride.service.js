@@ -13,7 +13,9 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.RideServices = void 0;
+const constants_1 = require("../../../constants");
 const AppError_1 = __importDefault(require("../../errorHelpers/AppError"));
+const QueryBuilder_1 = require("../../utils/QueryBuilder");
 const user_model_1 = require("../user/user.model");
 const ride_interface_1 = require("./ride.interface");
 const ride_model_1 = require("./ride.model");
@@ -39,15 +41,26 @@ const rideRequest = (payload, userId) => __awaiter(void 0, void 0, void 0, funct
     const rideRequest = yield ride_model_1.Ride.create(Object.assign({ rider: userId }, payload));
     return rideRequest;
 });
-const getMyRideRequest = (userId) => __awaiter(void 0, void 0, void 0, function* () {
+const getMyRideRequest = (query, userId) => __awaiter(void 0, void 0, void 0, function* () {
     console.log(userId);
-    const myRides = yield ride_model_1.Ride.find({ rider: userId });
-    if (!myRides || myRides.length === 0) {
-        return {
-            message: "No rides found in your history.",
-        };
-    }
-    return myRides;
+    const myRides = ride_model_1.Ride.find({ rider: userId })
+        .populate("rider", "name phone address ")
+        .populate("driver", "name phone address ");
+    const queryBuilder = new QueryBuilder_1.QueryBuilder(myRides, query);
+    const rides = queryBuilder
+        .filter()
+        .search(constants_1.rideSearchableFilds)
+        .sort()
+        .filter()
+        .paginate();
+    const [data, meta] = yield Promise.all([
+        rides.build(),
+        queryBuilder.getMeta()
+    ]);
+    return {
+        data,
+        meta
+    };
 });
 const rideStatusUpdate = (status, userId, rideId) => __awaiter(void 0, void 0, void 0, function* () {
     const ride = yield ride_model_1.Ride.findById(rideId);

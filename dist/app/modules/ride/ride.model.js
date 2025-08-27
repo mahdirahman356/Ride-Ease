@@ -6,16 +6,10 @@ const ride_interface_1 = require("./ride.interface");
 const RideSchema = new mongoose_1.Schema({
     rider: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", required: true },
     driver: { type: mongoose_1.Schema.Types.ObjectId, ref: "User", default: null },
-    pickupLocation: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true },
-        address: { type: String }
-    },
-    destinationLocation: {
-        lat: { type: Number, required: true },
-        lng: { type: Number, required: true },
-        address: { type: String }
-    },
+    pickupLocation: { type: String },
+    destinationLocation: { type: String },
+    fareEstimation: { type: Number },
+    paymentMethod: { type: String },
     status: { type: String, enum: Object.values(ride_interface_1.RideStatus), default: ride_interface_1.RideStatus.REQUESTED },
     statusHistory: {
         requestedAt: { type: Date, default: Date.now },
