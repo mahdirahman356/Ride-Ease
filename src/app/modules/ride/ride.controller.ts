@@ -18,8 +18,9 @@ const rideRequest = catchAsync(async (req: Request, res: Response, next: NextFun
 
 const getMyRideRequest = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload
+    const query = req.query
     console.log(decodedToken?.userId)
-    const result = await RideServices.getMyRideRequest(decodedToken.userId)
+    const result = await RideServices.getMyRideRequest(query as Record<string, string>, decodedToken.userId)
     sendResponse(res, {
         success: true,
         statusCode: 200,

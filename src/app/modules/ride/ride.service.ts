@@ -1,4 +1,6 @@
+import { rideSearchableFilds } from "../../../constants"
 import AppError from "../../errorHelpers/AppError"
+import { QueryBuilder } from "../../utils/QueryBuilder"
 import { User } from "../user/user.model"
 import { IRide, RideStatus } from "./ride.interface"
 import { Ride } from "./ride.model"
@@ -35,15 +37,29 @@ const rideRequest = async (payload: Partial<IRide>, userId: string) => {
     })
     return rideRequest
 }
-const getMyRideRequest = async (userId: string) => {
+const getMyRideRequest = async (query: Record<string, string>, userId: string) => {
     console.log(userId)
-    const myRides = await Ride.find({ rider: userId })
-    if (!myRides || myRides.length === 0) {
-        return {
-            message: "No rides found in your history.",
-        };
+    const myRides = Ride.find({ rider: userId })
+        .populate("rider", "name phone address ")
+        .populate("driver", "name phone address ")
+    const queryBuilder = new QueryBuilder(myRides, query)
+
+    const rides = queryBuilder
+        .filter()
+        .search(rideSearchableFilds)
+        .sort()
+        .filter()
+        .paginate()
+
+     const [data, meta] = await Promise.all([
+          rides.build(),
+          queryBuilder.getMeta()
+     ])
+
+    return {
+        data,
+        meta
     }
-    return myRides
 }
 const rideStatusUpdate = async (status: string, userId: string, rideId: string) => {
 

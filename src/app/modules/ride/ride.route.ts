@@ -11,7 +11,7 @@ router.post("/request",
     validateRequest(createRidesZodSchema),
     RideController.rideRequest)
 
-router.get("/me",
+router.get("/my-rides",
     checkAuth(Role.RIDER),
     RideController.getMyRideRequest)
 

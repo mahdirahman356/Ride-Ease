@@ -10,11 +10,6 @@ export enum RideStatus {
     CANCELLED = "CANCELLED"
 }
 
-export interface ILocation {
-    address?: string;
-    lat: number;
-    lng: number;
-}
 
 export interface IStatusHistory {
     requestedAt: Date;
@@ -30,8 +25,10 @@ export interface IStatusHistory {
 export interface IRide {
     rider: Types.ObjectId,
     driver: Types.ObjectId,
-    pickupLocation: ILocation,
-    destinationLocation: ILocation,
+    pickupLocation: string,
+    destinationLocation: string,
+    fareEstimation: number,
+    paymentMethod: string,
     status: RideStatus,
     statusHistory: IStatusHistory
 }

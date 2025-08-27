@@ -9,7 +9,7 @@ import { IsActive, Role } from "../modules/user/user.interface";
 
 export const checkAuth = (...authRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
 
-    const accessToken = req.headers.authorization
+       const accessToken = req.headers.authorization || req.cookies.accessToken
 
     if (!accessToken) {
         throw new AppError(403, "No Token Recieved")
@@ -23,23 +23,9 @@ export const checkAuth = (...authRoles: string[]) => async (req: Request, res: R
         throw new AppError(400, "User does not exist")
     }
 
-    if (isUserExist.isActive === IsActive.BLOCKED || isUserExist.isActive === IsActive.INACTIVE) {
-        throw new AppError(400, `User is ${isUserExist.isActive}`)
-    }
 
     if (isUserExist.isDeleted) {
         throw new AppError(400, "User is deleted")
-    }
-
-    if (verifiedToken.role === Role.DRIVER) {
-        if (!isUserExist.isOnline) {
-            throw new AppError(403, "Driver is currently offline");
-        }
-
-        if (!isUserExist.isApproved) {
-            throw new AppError(403, "Driver is not approved by admin");
-        }
-
     }
 
     if (!authRoles.includes(verifiedToken.role)) {
