@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-dynamic-delete */
-import { Query } from "mongoose";
+import { Query, RootFilterQuery } from "mongoose";
 import { excludeField } from "../../constants";
 
 export class QueryBuilder<T> {
@@ -82,8 +82,8 @@ export class QueryBuilder<T> {
         return this.modelQuery
     }
 
-    async getMeta() {
-        const totalDocuments = await this.modelQuery.model.countDocuments()
+    async getMeta(filter?: RootFilterQuery<any> | undefined) {
+        const totalDocuments = await this.modelQuery.model.countDocuments(filter)
 
         const page = Number(this.query.page) || 1
         const limit = Number(this.query.limit) || 10

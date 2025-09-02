@@ -125,7 +125,7 @@ const getMyRideHistory = async (query: Record<string, string>, userId: string) =
 
     const [data, meta] = await Promise.all([
         rides.build(),
-        queryBuilder.getMeta()
+        queryBuilder.getMeta({ driver: userId })
     ])
 
     return {

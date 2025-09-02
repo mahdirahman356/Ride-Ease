@@ -180,7 +180,7 @@ const updateUser = async (userId: string, payload: Partial<IUser>, decodedToken:
         throw new AppError(404, "User Not Found")
     }
 
-    if (ifUserExist.isDeleted === true || ifUserExist.isActive === IsActive.BLOCKED) {
+    if (ifUserExist.isActive === IsActive.BLOCKED) {
         throw new AppError(401, "This user can not be updated")
     }
 

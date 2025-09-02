@@ -158,7 +158,7 @@ const updateUser = (userId, payload, decodedToken) => __awaiter(void 0, void 0, 
     if (!ifUserExist) {
         throw new AppError_1.default(404, "User Not Found");
     }
-    if (ifUserExist.isDeleted === true || ifUserExist.isActive === user_interface_1.IsActive.BLOCKED) {
+    if (ifUserExist.isActive === user_interface_1.IsActive.BLOCKED) {
         throw new AppError_1.default(401, "This user can not be updated");
     }
     if (decodedToken.role === user_interface_1.Role.DRIVER) {

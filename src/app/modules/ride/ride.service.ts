@@ -23,7 +23,6 @@ const rideRequest = async (payload: Partial<IRide>, userId: string) => {
         role: "DRIVER",
         isOnline: true,
         isApproved: true,
-        isDeleted: false,
         isActive: "ACTIVE",
     });
 
@@ -53,7 +52,7 @@ const getMyRideRequest = async (query: Record<string, string>, userId: string) =
 
      const [data, meta] = await Promise.all([
           rides.build(),
-          queryBuilder.getMeta()
+          queryBuilder.getMeta({ rider: userId })
      ])
 
     return {

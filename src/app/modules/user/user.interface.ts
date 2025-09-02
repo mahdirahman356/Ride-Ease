@@ -35,9 +35,7 @@ export interface IUser {
     lastCancelAt: Date,
     isApproved: boolean,
     isOnline: boolean,
-    isDeleted?: boolean,
     isActive?: string,
-    isVerified?: boolean,
     vehicleInfo?: IVehicleInfo | null;
     auths: IAuthProvider[]
 }
