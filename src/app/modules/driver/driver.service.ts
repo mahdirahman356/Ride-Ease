@@ -221,7 +221,7 @@ const getMyEarnings = async (userId: string, query: Record<string, string>) => {
     return earningsData;
 };
 
-const getDriverAssignedRides = async (userId: string) => {
+const getDriverAssignedRide = async (userId: string) => {
 
     const driver = await User.findById(userId);
 
@@ -259,5 +259,5 @@ export const DriverServices = {
     getMyRideHistory,
     getMyEarnings,
     rideRequests,
-    getDriverAssignedRides
+    getDriverAssignedRide
 }

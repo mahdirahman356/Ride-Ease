@@ -54,9 +54,9 @@ const getMyEarnings = catchAsync(async (req: Request, res: Response, next: NextF
     })
 
 })
-const getDriverAssignedRides = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+const getDriverAssignedRide = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload
-    const result = await DriverServices.getDriverAssignedRides(decodedToken.userId)
+    const result = await DriverServices.getDriverAssignedRide(decodedToken.userId)
     sendResponse(res, {
         success: true,
         statusCode: 200,
@@ -71,5 +71,5 @@ export const DriverControllers = {
     getMyRideHistory,
     getMyEarnings,
     rideRequests,
-    getDriverAssignedRides
+    getDriverAssignedRide
 }

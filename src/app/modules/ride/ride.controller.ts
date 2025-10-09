@@ -30,6 +30,19 @@ const getMyRideRequest = catchAsync(async (req: Request, res: Response, next: Ne
 
 })
 
+const getRiderAssignedRide = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
+    const decodedToken = req.user as JwtPayload
+    const result = await RideServices.getRiderAssignedRide(decodedToken.userId)
+    sendResponse(res, {
+        success: true,
+        statusCode: 200,
+        message: "Assigned ride retrieved successfully",
+        data: result
+    })
+
+})
+
+
 const rideStatusUpdate = catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const decodedToken = req.user as JwtPayload
     const rideId = req.params.id
@@ -47,5 +60,6 @@ const rideStatusUpdate = catchAsync(async (req: Request, res: Response, next: Ne
 export const RideController = {
     rideRequest,
     getMyRideRequest,
+    getRiderAssignedRide,
     rideStatusUpdate
 }

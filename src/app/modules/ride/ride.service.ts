@@ -1,6 +1,7 @@
 import { rideSearchableFilds } from "../../../constants"
 import AppError from "../../errorHelpers/AppError"
 import { QueryBuilder } from "../../utils/QueryBuilder"
+import { IsActive } from "../user/user.interface"
 import { User } from "../user/user.model"
 import { IRide, RideStatus } from "./ride.interface"
 import { Ride } from "./ride.model"
@@ -36,6 +37,7 @@ const rideRequest = async (payload: Partial<IRide>, userId: string) => {
     })
     return rideRequest
 }
+
 const getMyRideRequest = async (query: Record<string, string>, userId: string) => {
     console.log(userId)
     const myRides = Ride.find({ rider: userId })
@@ -60,6 +62,31 @@ const getMyRideRequest = async (query: Record<string, string>, userId: string) =
         meta
     }
 }
+
+const getRiderAssignedRide = async (userId: string) => {
+
+    const rider = await User.findById(userId);
+
+    if (!rider) {
+        throw new AppError(400, `Rider not found`);
+    }
+
+    if (rider.isActive === IsActive.BLOCKED || rider.isActive === IsActive.INACTIVE) {
+        throw new AppError(400, `User is ${rider.isActive}`)
+    }
+
+    const validStatuses: RideStatus[] = [RideStatus.REQUESTED, RideStatus.ACCEPTED, RideStatus.PICKED_UP, RideStatus.IN_TRANSIT];
+    const ride = await Ride.find({ rider: userId, status: { $in: validStatuses } })
+        .populate("driver", "name address")
+
+    if (!ride || ride.length === 0) {
+        return {
+            message: "No assigned ride found for the rider.",
+        };
+    }
+    return ride
+}
+
 const rideStatusUpdate = async (status: string, userId: string, rideId: string) => {
 
     const ride = await Ride.findById(rideId)
@@ -109,5 +136,6 @@ const rideStatusUpdate = async (status: string, userId: string, rideId: string) 
 export const RideServices = {
     rideRequest,
     getMyRideRequest,
+    getRiderAssignedRide,
     rideStatusUpdate
 }

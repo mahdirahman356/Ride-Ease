@@ -15,6 +15,10 @@ router.get("/my-rides",
     checkAuth(Role.RIDER),
     RideController.getMyRideRequest)
 
+router.get("/assigned-ride",
+    checkAuth(Role.RIDER),
+    RideController.getRiderAssignedRide)
+
 router.patch("/:id/status",
     checkAuth(Role.RIDER),
     RideController.rideStatusUpdate)

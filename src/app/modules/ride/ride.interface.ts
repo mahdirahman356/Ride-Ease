@@ -22,11 +22,17 @@ export interface IStatusHistory {
 
 }
 
+interface ILocation {
+    address: string,
+    latitude: number,
+    longitude: number
+}
+
 export interface IRide {
     rider: Types.ObjectId,
     driver: Types.ObjectId,
-    pickupLocation: string,
-    destinationLocation: string,
+    pickupLocation: ILocation
+    destinationLocation: ILocation,
     fareEstimation: number,
     paymentMethod: string,
     status: RideStatus,

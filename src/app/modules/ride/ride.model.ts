@@ -5,10 +5,18 @@ import { IRide, RideStatus } from "./ride.interface";
 const RideSchema = new Schema<IRide>({
     rider: { type: Schema.Types.ObjectId, ref: "User", required: true },
     driver: { type: Schema.Types.ObjectId, ref: "User", default: null },
-    pickupLocation: {type: String },
-    destinationLocation: {type: String },
-    fareEstimation: {type: Number},
-    paymentMethod: {type: String},
+    pickupLocation: {
+        address: { type: String },
+        latitude: { type: Number },
+        longitude: { type: Number }
+    },
+    destinationLocation: {
+        address: { type: String },
+        latitude: { type: Number },
+        longitude: { type: Number }
+    },
+    fareEstimation: { type: Number },
+    paymentMethod: { type: String },
     status: { type: String, enum: Object.values(RideStatus), default: RideStatus.REQUESTED },
     statusHistory: {
         requestedAt: { type: Date, default: Date.now },

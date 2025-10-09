@@ -23,5 +23,5 @@ router.get("/ride-requests",
 
 router.get("/assigned-ride",
     checkAuth(Role.DRIVER),
-    DriverControllers.getDriverAssignedRides )
+    DriverControllers.getDriverAssignedRide )
 export const DriverRoute = router
