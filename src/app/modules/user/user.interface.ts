@@ -20,6 +20,7 @@ export enum IsActive {
 export interface IVehicleInfo {
     model: string;
     plateNumber: string;
+    image: string
 }
 
 export interface IUser {

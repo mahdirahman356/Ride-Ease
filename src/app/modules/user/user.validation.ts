@@ -32,6 +32,10 @@ export const createUserZodSchema = z.object({
         .object({
             model: z.string(),
             plateNumber: z.string(),
+            image: z
+                .string()
+                .url({ message: "Vehicle image must be a valid URL" })
+                .optional(),
         })
         .optional()
 })
@@ -57,6 +61,10 @@ export const updateUserZodSchema = z.object({
         .object({
             model: z.string(),
             plateNumber: z.string(),
+            image: z
+                .string()
+                .url({ message: "Vehicle image must be a valid URL" })
+                .optional(),
         })
         .optional()
 })

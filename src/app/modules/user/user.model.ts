@@ -24,7 +24,7 @@ const userSchema = new Schema<IUser>({
     isApproved: { type: Boolean },
     isOnline: { type: Boolean },
     isActive: { type: String, enum: Object.values(IsActive), default: IsActive.ACTIVE },
-    vehicleInfo: { type: { model: String, plateNumber: String, } },
+    vehicleInfo: { type: { _id: false, model: String, plateNumber: String, image: String } },
     auths: [authProviderSchema]
 }, {
     timestamps: true,

@@ -244,7 +244,7 @@ const getDriverAssignedRide = async (userId: string) => {
 
     const validStatuses: RideStatus[] = [RideStatus.ACCEPTED, RideStatus.PICKED_UP, RideStatus.IN_TRANSIT];
     const ride = await Ride.find({ driver: userId, status: { $in: validStatuses } })
-        .populate("rider", "name address")
+        .populate("rider", "name address phone")
 
     if (!ride || ride.length === 0) {
         return {
